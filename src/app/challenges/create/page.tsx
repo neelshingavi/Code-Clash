@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useToast } from "@/components/ui/Toast";
 
 export default function CreateChallenge() {
   const [name, setName] = useState("");
@@ -11,12 +12,11 @@ export default function CreateChallenge() {
   const [penaltyMode, setPenaltyMode] = useState("minus_points");
   const [penaltyAmount, setPenaltyAmount] = useState(5);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
 
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
@@ -35,7 +35,7 @@ export default function CreateChallenge() {
     }).select().single();
 
     if (error) {
-      setError(error.message);
+      showToast(error.message, "error");
       setLoading(false);
     } else {
       // Auto-join the creator to the challenge
@@ -43,6 +43,7 @@ export default function CreateChallenge() {
         challenge_id: data.id,
         user_id: session.user.id,
       });
+      showToast("Challenge forged successfully!", "success");
       window.location.href = `/challenges/${data.id}`;
     }
   };
@@ -51,12 +52,6 @@ export default function CreateChallenge() {
     <div style={{ maxWidth: "600px", margin: "0 auto" }} className="animate-fade-in">
       <div className="card glass">
         <h2 style={{ marginBottom: "2rem" }}>Forge a New Challenge</h2>
-        
-        {error && (
-          <div style={{ padding: "0.75rem", backgroundColor: "rgba(239, 68, 68, 0.1)", color: "var(--danger)", borderRadius: "8px", marginBottom: "1.5rem", border: "1px solid rgba(239, 68, 68, 0.2)" }}>
-            {error}
-          </div>
-        )}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">

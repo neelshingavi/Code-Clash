@@ -2,14 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { useToast } from "@/components/ui/Toast";
 
 export default function SubmitProblem() {
   const [url, setUrl] = useState("");
   const [name, setName] = useState("");
   const [difficulty, setDifficulty] = useState("easy");
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const { showToast } = useToast();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -22,7 +23,6 @@ export default function SubmitProblem() {
     e.preventDefault();
     if (!user) return;
     setLoading(true);
-    setSuccess(false);
 
     try {
       // 1. Get points for difficulty
@@ -45,13 +45,13 @@ export default function SubmitProblem() {
       const currentScore = userData?.total_score || 0;
       await supabase.from("users").update({ total_score: currentScore + points }).eq("id", user.id);
 
-      setSuccess(true);
+      showToast(`Problem logged! Earned ${points} points.`, "success");
       setUrl("");
       setName("");
       setDifficulty("easy");
     } catch (error) {
       console.error("Submission failed:", error);
-      alert("Failed to submit problem.");
+      showToast("Failed to submit problem.", "error");
     } finally {
       setLoading(false);
     }
@@ -61,12 +61,6 @@ export default function SubmitProblem() {
     <div style={{ maxWidth: "600px", margin: "0 auto" }} className="animate-fade-in">
       <div className="card glass">
         <h2 style={{ marginBottom: "2rem" }}>Log a Problem</h2>
-        
-        {success && (
-          <div style={{ padding: "1rem", backgroundColor: "rgba(16, 185, 129, 0.1)", color: "var(--success)", borderRadius: "8px", marginBottom: "1.5rem", border: "1px solid rgba(16, 185, 129, 0.2)" }}>
-            Problem logged successfully! You earned points for this submission.
-          </div>
-        )}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
