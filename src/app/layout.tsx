@@ -5,10 +5,19 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 import { ToastProvider } from '@/components/ui/Toast'
+import { Navbar } from '@/components/Navbar'
+import { PWARegister } from '@/components/PWARegister'
+import { PenaltyNotifierWrapper } from '@/components/PenaltyNotifierWrapper'
+import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Daily Code Clash',
-  description: '1v1 Daily Problem Solving Competition Tracker',
+  title: 'Code Clash — 1v1 Daily Coding Arena',
+  description: 'Compete daily with friends on LeetCode problems. Track your progress, maintain streaks, and climb the leaderboard.',
+  manifest: '/manifest.json',
+}
+
+export const viewport = {
+  themeColor: '#818cf8',
 }
 
 export default function RootLayout({
@@ -21,18 +30,26 @@ export default function RootLayout({
       <body className={inter.className}>
         <ToastProvider>
           <div className="container">
-            <header style={{ padding: '1.5rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--surface-border)' }}>
-              <h1 style={{ fontSize: '1.5rem', margin: 0, color: 'var(--primary)' }}>Code Clash</h1>
-              <nav style={{ display: 'flex', gap: '1rem' }}>
-                <a href="/" style={{ fontWeight: 600 }}>Dashboard</a>
-                <a href="/submit" style={{ fontWeight: 600 }}>Log Problem</a>
-                <a href="/settings" style={{ fontWeight: 600 }}>Settings</a>
-              </nav>
+            <header className="header-wrapper">
+              <Link href="/" className="logo-link">
+                <span className="logo-icon">⚔️</span>
+                <span className="logo-text">Code Clash</span>
+              </Link>
+              <Navbar />
             </header>
+
             <main className="main-content">
               {children}
             </main>
+
+            <footer className="app-footer">
+              <div className="footer-content">
+                <span>© {new Date().getFullYear()} Code Clash — Built with ♥ for competitive coders</span>
+              </div>
+            </footer>
           </div>
+          <PWARegister />
+          <PenaltyNotifierWrapper />
         </ToastProvider>
       </body>
     </html>
