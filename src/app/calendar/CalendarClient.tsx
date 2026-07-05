@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ContributionGraph } from '@/components/ContributionGraph';
+import { ContributionGraph } from '@/components/features/profile/ContributionGraph';
 import { ExternalLink, CheckCircle2 } from 'lucide-react';
 import type { CalendarDayRecord } from '@/data/calendar';
 

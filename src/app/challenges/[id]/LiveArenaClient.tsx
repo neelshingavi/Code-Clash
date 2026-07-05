@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useTransition } from "react";
 import { useRouter } from 'next/navigation';
 import { createClient } from "@/lib/supabase/client";
-import { fetchLeetcodeCalendar } from "@/app/actions/leetcode";
-import { joinChallengeAction, syncLeetcodeAction } from "@/app/actions/challenges";
+import { fetchLeetcodeCalendar } from "@/actions/leetcode";
+import { joinChallengeAction, syncLeetcodeAction } from "@/actions/challenges";
 import { useToast } from "@/components/ui/Toast";
 import { ShieldAlert, Trophy, CalendarDays, CheckCircle2, XCircle, RefreshCw, Skull, Copy, Clock, Target, Zap } from "lucide-react";
 

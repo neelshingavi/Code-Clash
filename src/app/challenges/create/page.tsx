@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState, useState } from 'react';
-import { createChallengeAction } from '@/app/actions/challenges';
+import { createChallengeAction } from '@/actions/challenges';
 import { Swords, Zap, AlertTriangle, Shield, RotateCcw, Flame, MinusCircle, ChevronDown, ArrowBigDown } from 'lucide-react';
 
 const penaltyOptions = [

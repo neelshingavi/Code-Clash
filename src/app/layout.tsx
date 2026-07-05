@@ -5,9 +5,9 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 import { ToastProvider } from '@/components/ui/Toast'
-import { Navbar } from '@/components/Navbar'
-import { PWARegister } from '@/components/PWARegister'
-import { PenaltyNotifierWrapper } from '@/components/PenaltyNotifierWrapper'
+import { Navbar } from '@/components/layout/Navbar'
+import { PWARegister } from '@/components/system/PWARegister'
+import { PenaltyNotifierWrapper } from '@/components/system/PenaltyNotifierWrapper'
 import Link from 'next/link'
 
 export const metadata: Metadata = {

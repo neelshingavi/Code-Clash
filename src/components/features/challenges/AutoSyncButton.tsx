@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { RefreshCw } from 'lucide-react';
-import { autoSyncSubmissionsAction } from '@/app/actions/challenges';
+import { autoSyncSubmissionsAction } from '@/actions/challenges';
 import { useToast } from '@/components/ui/Toast';
 
 export function AutoSyncButton() {

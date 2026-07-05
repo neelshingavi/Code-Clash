@@ -1,8 +1,8 @@
 import { Trophy, Flame, Plus, Swords, Target, ArrowUpRight, PenLine } from "lucide-react";
 import Link from "next/link";
 import { verifySession, getUserStats, getMyActiveChallenges } from "@/data/challenges";
-import { LogoutButton } from "@/components/LogoutButton";
-import { AutoSyncButton } from "@/components/AutoSyncButton";
+import { LogoutButton } from "@/components/auth/LogoutButton";
+import { AutoSyncButton } from "@/components/features/challenges/AutoSyncButton";
 
 function getRankMedal(rank: number) {
   if (rank === 1) return "🥇";

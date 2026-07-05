@@ -1,6 +1,6 @@
 import { verifySession, getUserStats } from '@/data/challenges';
 import { getUserSubmissionsHistory } from '@/data/calendar';
-import { fetchLeetcodeCalendar } from '@/app/actions/leetcode';
+import { fetchLeetcodeCalendar } from '@/actions/leetcode';
 import { CalendarClient } from './CalendarClient';
 
 export const metadata = {
