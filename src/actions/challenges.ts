@@ -144,17 +144,18 @@ export async function autoSyncSubmissionsAction() {
     .eq('user_id', user.id)
     .gte('challenges.end_date', new Date().toISOString().split('T')[0]);
 
-  // 4. Fetch user's existing submissions to prevent duplicates - REMOVED.
-  // We now rely on the database's ON CONFLICT DO NOTHING constraint to handle deduplication seamlessly.
+  // 4. Fetch user's existing submissions to prevent duplicates (Application-Layer Defense)
+  const { data: existingSubs } = await supabase
+    .from('submissions')
+    .select('problem_url, challenge_id')
+    .eq('user_id', user.id);
   
   let newSyncCount = 0;
 
   for (const sub of recentSubs) {
     const url = `https://leetcode.com/problems/${sub.titleSlug}/`;
     
-    // Deterministic UTC parsing. The LeetCode epoch timestamp is converted into 
-    // a YYYY-MM-DD string exactly as it exists in UTC.
-    // The calendar component is also updated to parse this epoch in UTC, guaranteeing a perfect match.
+    // Deterministic UTC parsing.
     const solvedDate = new Date(Number(sub.timestamp) * 1000).toISOString().split('T')[0];
       
     const difficulty = await fetchQuestionDifficulty(sub.titleSlug);
@@ -162,6 +163,10 @@ export async function autoSyncSubmissionsAction() {
 
     if (activeParticipants && activeParticipants.length > 0) {
       for (const participant of activeParticipants) {
+        // PRODUCTION-GRADE CHECK: Application-layer duplicate prevention
+        const isDuplicate = existingSubs?.some(s => s.problem_url === url && s.challenge_id === participant.challenge_id);
+        if (isDuplicate) continue;
+
         const { data: wasInserted, error } = await supabase.rpc('submit_solution', {
           p_challenge_id: participant.challenge_id,
           p_problem_name: sub.title,
@@ -174,23 +179,16 @@ export async function autoSyncSubmissionsAction() {
            console.error('Failed to sync to challenge:', error.message);
         } else if (wasInserted) {
            inserted = true;
-           
-           // PRODUCTION-GRADE CHECK:
-           const { data: verifyData } = await supabase.from('submissions')
-             .select('solved_date')
-             .eq('user_id', user.id)
-             .eq('problem_url', url)
-             .eq('challenge_id', participant.challenge_id)
-             .single();
-             
-           if (verifyData && verifyData.solved_date !== solvedDate) {
-             throw new Error("DATABASE_MIGRATION_REQUIRED: The database ignored the historical solved_date because the submit_solution RPC is outdated. Please run the SQL migration provided earlier in the Supabase Dashboard to update the RPC signature.");
-           }
+           // If successful, push it to our in-memory cache to prevent subsequent loop duplicates
+           existingSubs?.push({ problem_url: url, challenge_id: participant.challenge_id });
         }
       }
     } else {
       // No active challenges, just log it personally
-      // We still rely on ON CONFLICT DO NOTHING via supabase insert modifiers if it already exists
+      // PRODUCTION-GRADE CHECK: Prevent NULL challenge_id duplication
+      const isDuplicate = existingSubs?.some(s => s.problem_url === url && s.challenge_id === null);
+      if (isDuplicate) continue;
+
       const { data, error } = await supabase.from('submissions').insert({
         user_id: user.id,
         problem_name: sub.title,
@@ -203,10 +201,12 @@ export async function autoSyncSubmissionsAction() {
       .select('id')
       .maybeSingle();
 
-      if (error && error.code !== '23505') { // 23505 is unique violation code
+      if (error && error.code !== '23505') { 
          console.error('Failed to personal log:', error.message);
       } else if (data) {
          inserted = true;
+         // Push to cache
+         existingSubs?.push({ problem_url: url, challenge_id: null });
       }
     }
     
