@@ -167,8 +167,10 @@ create table public.submissions (
   solved_date     date not null default current_date,
   created_at      timestamptz not null default timezone('utc', now()),
   constraint unique_problem_per_user_per_day
-    unique (user_id, challenge_id, problem_url, solved_date)
+    unique (user_id, challenge_id, problem_url)
 );
+
+create unique index unique_personal_log on public.submissions (user_id, problem_url) where challenge_id is null;
 
 create index submissions_challenge_user_date_idx on public.submissions (challenge_id, user_id, solved_date);
 create index submissions_user_date_idx on public.submissions (user_id, solved_date);
